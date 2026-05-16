@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoMission</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    text-align:center;
+    background:linear-gradient(to bottom,#74c0fc,#d8f3dc);
+    color:#1b4332;
+}
+
+h1{font-size:50px;}
+
+.card{
+    background:white;
+    width:420px;
+    margin:auto;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.2);
+}
+
+button{
+    padding:12px 18px;
+    margin:6px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.green{background:#2d6a4f;color:white;}
+.blue{background:#219ebc;color:white;}
+.red{background:#d62828;color:white;}
+
+.points{
+    font-size:40px;
+    margin:10px;
+}
+
+input{
+    width:90%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+
+/* PERFIL */
+#profileScreen{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+}
+
+.profileContent{
+    background:white;
+    width:420px;
+    margin:80px auto;
+    padding:20px;
+    border-radius:15px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🌍 EcoMission</h1>
+
+<p>El cambio climatico está afectando nuestro planeta, puedes marcar la diferencia. Tu puedes ¡Cada acción cuenta! 🌱</p>
+
+<div class="card">
+
+<h2>🎯 Misión</h2>
+<p id="mission">...</p>
+
+<h2>✍ Experiencia</h2>
+<input id="experience" placeholder="Escribe lo que hiciste">
+
+<h2>🌱 Puntos</h2>
+<div class="points" id="points">0</div>
+
+<p id="co2">CO₂ evitado: 0 kg</p>
+
+<button class="green" onclick="completarMision()">
+✔ Completar misión
+</button>
+
+<button class="blue" onclick="nuevaMision()">
+🔄 Nueva misión
+</button>
+
+<button class="blue" onclick="abrirPerfil()">
+👤 Ver perfil
+</button>
+
+</div>
+
+<!-- HISTORIAL -->
+<div class="card">
+
+<h3>📜 Historial</h3>
+<ul id="history"></ul>
+
+</div>
+
+<!-- PERFIL -->
+<div id="profileScreen">
+
+<div class="profileContent">
+
+<button class="red" onclick="cerrarPerfil()">❌</button>
+
+<h2>👤 Tu perfil</h2>
+
+<p id="perfilNivel">Nivel: Principiante 🌱</p>
+<p id="perfilMedalla">Medallas: Ninguna 🏅</p>
+<p id="perfilPuntos">Puntos: 0</p>
+
+<button class="red" onclick="reiniciarTodo()">
+🔄 Reiniciar progreso
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+let puntos = 0;
+let co2 = 0;
+
+const misiones = [
+"Reciclar ♻️",
+"Apagar luces 💡",
+"Usar bicicleta 🚴",
+"Ahorro de agua 💧",
+"Reducir plástico 🌎",
+"Evitar desperdicio de comida 🍎"
+];
+
+function nuevaMision(){
+    let r = Math.floor(Math.random()*misiones.length);
+    document.getElementById("mission").innerText = misiones[r];
+}
+
+function calidadTexto(texto){
+
+    texto = texto.trim();
+    if(texto.length < 5) return 0;
+
+    let palabras = texto.split(" ").length;
+
+    let pts = 10;
+
+    if(palabras >= 8) pts = 15;
+    if(palabras >= 15) pts = 20;
+
+    let ecoWords = ["recicle", "planté", "ahorré", "cuidé", "bicicleta", "reutilicé"];
+
+    for(let w of ecoWords){
+        if(texto.toLowerCase().includes(w)){
+            pts += 5;
+            break;
+        }
+    }
+
+    return pts;
+}
+
+function completarMision(){
+
+    let exp = document.getElementById("experience").value;
+
+    let ganados = calidadTexto(exp);
+
+    if(ganados === 0){
+        alert("Escribe una experiencia real 🌱");
+        return;
+    }
+
+    puntos += ganados;
+    co2 += 2;
+
+    document.getElementById("points").innerText = puntos;
+    document.getElementById("co2").innerText = "CO₂ evitado: " + co2 + " kg";
+
+    // 📜 HISTORIAL
+    let m = document.getElementById("mission").innerText;
+
+    let li = document.createElement("li");
+    li.innerHTML =
+        "✔ " + m +
+        "<br>💬 " + exp +
+        "<br>⭐ +" + ganados + " puntos";
+
+    document.getElementById("history").appendChild(li);
+
+    actualizarPerfil();
+    nuevaMision();
+}
+
+function abrirPerfil(){
+    document.getElementById("profileScreen").style.display = "block";
+    actualizarPerfil();
+}
+
+function cerrarPerfil(){
+    document.getElementById("profileScreen").style.display = "none";
+}
+
+function reiniciarTodo(){
+
+    let ok = confirm("¿Seguro que quieres reiniciar tu progreso? 🌍");
+    if(!ok) return;
+
+    let ok2 = confirm("Esto borrará puntos, nivel y medallas ❌");
+    if(!ok2) return;
+
+    puntos = 0;
+    co2 = 0;
+
+    document.getElementById("points").innerText = 0;
+    document.getElementById("co2").innerText = "CO₂ evitado: 0 kg";
+    document.getElementById("history").innerHTML = "";
+
+    actualizarPerfil();
+
+    alert("Progreso reiniciado ✔");
+}
+
+function actualizarPerfil(){
+
+    document.getElementById("perfilPuntos").innerText =
+    "Puntos: " + puntos;
+
+    let nivel = "";
+
+    if(puntos < 30) nivel = "Principiante 🌱";
+    else if(puntos < 60) nivel = "Aprendiz 🌿";
+    else if(puntos < 100) nivel = "Protector 🌍";
+    else nivel = "Leyenda 👑";
+
+    document.getElementById("perfilNivel").innerText =
+    "Nivel: " + nivel;
+
+    let medalla = "";
+
+    if(puntos < 50) medalla = "Ninguna 🏅";
+    else if(puntos < 100) medalla = "Bronce 🥉";
+    else if(puntos < 150) medalla = "Plata 🥈";
+    else medalla = "Oro 🥇";
+
+    document.getElementById("perfilMedalla").innerText =
+    "Medallas: " + medalla;
+}
+
+// inicio
+nuevaMision();
+actualizarPerfil();
+
+</script>
+
+</body>
+</html>
